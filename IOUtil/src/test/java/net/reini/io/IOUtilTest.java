@@ -8,7 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 import org.junit.Test;
 
@@ -16,13 +16,16 @@ public class IOUtilTest {
 
     @Test
     public void copyIoStreamsUsingIntConsumer() throws IOException {
-        AtomicLong counter = new AtomicLong();
+        LongAdder counter = new LongAdder();
         ByteArrayInputStream source = new ByteArrayInputStream("abc".getBytes());
         ByteArrayOutputStream target = new ByteArrayOutputStream();
 
-        copy(source, target, c -> counter.addAndGet(c));
+        copy(source, target, c -> {
+            counter.add(c);
+            return true;
+        });
 
-        assertEquals(3, counter.longValue());
+        assertEquals(3, counter.sum());
         assertEquals("abc", target.toString());
     }
 
@@ -39,13 +42,16 @@ public class IOUtilTest {
 
     @Test
     public void copyIoReadersUsingIntConsumer() throws IOException {
-        AtomicLong counter = new AtomicLong();
+        LongAdder counter = new LongAdder();
         StringReader source = new StringReader("abc");
         StringWriter target = new StringWriter();
 
-        copy(source, target, c -> counter.addAndGet(c));
+        copy(source, target, c -> {
+            counter.add(c);
+            return true;
+        });
 
-        assertEquals(3, counter.longValue());
+        assertEquals(3, counter.sum());
         assertEquals("abc", target.toString());
     }
 
