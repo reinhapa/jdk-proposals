@@ -1,1 +1,4 @@
-/IOUtil/target/
+target/
+build/
+.settings/
+.gradle/
