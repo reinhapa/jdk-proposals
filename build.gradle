@@ -1,13 +1,15 @@
 allprojects {
+    repositories {
+        jcenter()
+    }
 
     apply plugin: 'java'
-
 }
 
 
 /*
 
-java -p build/libs -m jdk9build/jdk.ListPackage
+java -p build/libs -m splitpkg/jdk.ListPackages
 
 jar {
     manifest {

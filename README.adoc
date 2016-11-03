@@ -1,0 +1,16 @@
+= OpenJDK proposals
+Patrick Reinhart <https://github.com/reinhapa[@reinhapa]>
+:project-full-path: reinhapa/jdk
+:github-branch: master
+
+image:https://img.shields.io/badge/license-GPL2+CPE-blue.svg["GNU General Public License, version 2,
+with the Classpath Exception", link="https://github.com/{project-full-path}/blob/{github-branch}/LICENSE"]
+
+This project contains proposals and some examples for the actual version of the
+http://openjdk.java.net[OpenJDK].
+
+== Contribute
+Contributions are always welcome.
+
+== License
+This project is licensed under the https://github.com/{project-full-path}/blob/{github-branch}/LICENSE[MIT license]

@@ -1,2 +1,3 @@
 include 'SplitPackageTool'
 include 'Jdk9ModuleTest'
+include 'WebSocketTestClient'

@@ -1,0 +1,4 @@
+dependencies {
+    compile "javax.websocket:javax.websocket-client-api:1.+"
+    compile "org.eclipse.jetty.websocket:javax-websocket-client-impl:9.+"
+}
