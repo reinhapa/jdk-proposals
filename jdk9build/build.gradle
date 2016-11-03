@@ -1,5 +1,14 @@
 
 apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = "jdk.ListPackage"
+
+
+
+/*
+
+java -p build/libs -m jdk9build/jdk.ListPackage
 
 jar {
     manifest {
@@ -7,7 +16,6 @@ jar {
     }
 }
 
-/*
 plugins {
     id 'jvm-component'
     id 'java-lang'

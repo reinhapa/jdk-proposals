@@ -55,9 +55,18 @@ public class ListPackages {
             System.out.println("ListPackages <list.txt | jarfile | exploded directory> ...");
             System.exit(1);
         }
+
+        boolean verbose = false;
         List<ListPackages> analyzers = new ArrayList<>();
 
         for (String arg : args) {
+            switch (arg) {
+                case "-v":
+                    verbose = true;
+                    continue;
+                default:
+            }
+
             Path p = Paths.get(arg);
             if (!addAnalyzer(analyzers, p)) {
                 if (arg.equals("list.txt")) {
@@ -101,12 +110,14 @@ public class ListPackages {
                     .forEach(location -> System.out.format("    %s%n", location));
             });
 
-        System.out.println("All packages: ");
-        for (ListPackages analyzer : analyzers) {
-            System.out.println(analyzer.location());
-            analyzer.packages.stream()
-                .sorted()
-                .forEach(p -> System.out.format("   %s%n", p));
+        if (verbose) {
+            System.out.println("All packages: ");
+            for (ListPackages analyzer : analyzers) {
+                System.out.println(analyzer.location());
+                analyzer.packages.stream()
+                    .sorted()
+                    .forEach(p -> System.out.format("   %s%n", p));
+            }
         }
     }
 
