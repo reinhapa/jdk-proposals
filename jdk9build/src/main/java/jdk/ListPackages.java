@@ -43,6 +43,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +52,9 @@ import java.util.stream.Collectors;
  * and reports the list of split packages
  */
 public class ListPackages {
+    private static Pattern JAR_FILE_PATTERN = Pattern.
+        compile("^.+\\.(jar|rar|war)$");
+
     public static void main(String... args) throws IOException {
         if (args.length == 0) {
             help();
@@ -164,7 +169,9 @@ public class ListPackages {
             if (Files.isDirectory(resource)) {
                 analyzers.add(new ListPackages(resource, () -> packages(resource)));
                 return true;
-            } else if (String.valueOf(resource.getFileName()).endsWith(".jar")) {
+            }
+            Matcher m = JAR_FILE_PATTERN.matcher(String.valueOf(resource.getFileName()));
+            if (m.matches()) {
                 analyzers.add(new ListPackages(resource, () -> jarFilePackages(resource)));
                 return true;
             }
