@@ -13,4 +13,4 @@ http://openjdk.java.net[OpenJDK].
 Contributions are always welcome.
 
 == License
-This project is licensed under the https://github.com/{project-full-path}/blob/{github-branch}/LICENSE[MIT license]
+This project is licensed under the https://github.com/{project-full-path}/blob/{github-branch}/LICENSE[GNU General Public License, version 2 with the Classpath Exception]
