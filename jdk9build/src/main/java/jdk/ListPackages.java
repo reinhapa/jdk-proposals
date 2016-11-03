@@ -54,8 +54,6 @@ import java.util.stream.Collectors;
  * and reports the list of split packages
  */
 public class ListPackages {
-    private static Pattern JAR_FILE_PATTERN = Pattern.
-        compile("^.+\\.(jar|rar|war)$", Pattern.CASE_INSENSITIVE);
 
     public static void main(String... args) throws IOException {
         if (args.length == 0) {
@@ -71,30 +69,35 @@ public class ListPackages {
                 case "-h":
                 case "--help":
                     help();
-                    continue;
-                case "-l":
+                case "-f":
                     if (argIt.hasNext()) {
                         Path p = Paths.get(argIt.next());
-                        Files.lines(p).forEach(line -> {
-                            Path lp = Paths.get(line);
-                            if (!addAnalyzer(analyzers, lp)) {
-                                throw new IllegalArgumentException(lp.toString() +
-                                    " not a directory and not a JAR/RAR/WAR file");
-                            }
-                        });
-                    } else {
-                        help();
+                        if (Files.exists(p) && Files.isRegularFile(p)) {
+                            Files.lines(p)
+                                .map(Paths::get)
+                                .forEach(lp -> addAnalyzer(analyzers, lp));
+                            continue;
+                        }
                     }
-                    continue;
+                    help();
+                case "-d":
+                    if (argIt.hasNext()) {
+                        Path p = Paths.get(argIt.next());
+                        if (Files.isDirectory(p)) {
+                            Files.list(p)
+                                .forEach(entry -> addAnalyzer(analyzers, entry));
+                            continue;
+                        }
+                    }                    
+                    help();
                 case "-v":
                     verbose = true;
                     continue;
                 default:
-                    Path p = Paths.get(arg);
-                    if (!addAnalyzer(analyzers, p)) {
-                        throw new IllegalArgumentException(p.toString() +
-                            " not a directory and not a JAR/RAR/WAR file");
+                    if (arg.startsWith("-")) {
+                        help();
                     }
+                    addAnalyzer(analyzers, Paths.get(arg));
             }
         }
 
@@ -142,18 +145,22 @@ public class ListPackages {
 
     private static void help() {
         System.out.println("");
-        System.out.println("usage: ListPackages [-v] [-l <file>] [file.jar | file.rar | file.war | exploded directory] ...");
+        System.out.println("usage: ListPackages [-v] [-f <file>] [-d <directory>] [file.jar | file.rar | file.war | exploded directory] ...");
         System.out.println("");
-        System.out.println(" -l <file>   file contains a list of file / directory on each line");
-        System.out.println(" -v          lists all packages after the split package report");
+        System.out.println(" -f <file>        file contains a list of file / exploded directory on each line");
+        System.out.println(" -d <directory>   directory containing file / exploded directories");
+        System.out.println(" -v               lists all packages after the split package report");
         System.out.println("");
         System.exit(1);
     }
 
     private static final String MODULE_INFO = "module-info.class";
+    private static final Pattern JAR_FILE_PATTERN = Pattern.
+        compile("^.+\\.(jar|rar|war)$", Pattern.CASE_INSENSITIVE);
 
     private final URI location;
     private final Set<String> packages;
+
     private ListPackages(Path path, Supplier<Set<String>> supplier) throws IOException {
         this.location = path.toUri();
         this.packages = supplier.get();
@@ -177,23 +184,20 @@ public class ListPackages {
      *
      * @throws IllegalArgumentException if the resource does not exist
      */
-    private static boolean addAnalyzer(List<ListPackages> analyzers, Path resource) {
-        if (!Files.exists(resource)) {
-            return false;
-        }
-        try {
-            if (Files.isDirectory(resource)) {
-                analyzers.add(new ListPackages(resource, () -> packages(resource)));
-                return true;
+    private static void addAnalyzer(List<ListPackages> analyzers, Path resource) {
+        if (Files.exists(resource)) {
+            try {
+                if (Files.isDirectory(resource)) {
+                    analyzers.add(new ListPackages(resource, () -> packages(resource)));
+                } else {
+                    Matcher m = JAR_FILE_PATTERN.matcher(String.valueOf(resource.getFileName()));
+                    if (m.matches()) {
+                        analyzers.add(new ListPackages(resource, () -> jarFilePackages(resource)));
+                    }
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
-            Matcher m = JAR_FILE_PATTERN.matcher(String.valueOf(resource.getFileName()));
-            if (m.matches()) {
-                analyzers.add(new ListPackages(resource, () -> jarFilePackages(resource)));
-                return true;
-            }
-            return false;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
