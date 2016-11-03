@@ -35,8 +35,10 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +55,7 @@ import java.util.stream.Collectors;
  */
 public class ListPackages {
     private static Pattern JAR_FILE_PATTERN = Pattern.
-        compile("^.+\\.(jar|rar|war)$");
+        compile("^.+\\.(jar|rar|war)$", Pattern.CASE_INSENSITIVE);
 
     public static void main(String... args) throws IOException {
         if (args.length == 0) {
@@ -63,32 +65,36 @@ public class ListPackages {
         boolean verbose = false;
         List<ListPackages> analyzers = new ArrayList<>();
 
-        for (String arg : args) {
+        for (Iterator<String> argIt = Arrays.asList(args).iterator(); argIt.hasNext(); ) {
+            String arg  = argIt.next();
             switch (arg) {
-                case "-v":
-                    verbose = true;
-                    continue;
                 case "-h":
                 case "--help":
                     help();
                     continue;
+                case "-l":
+                    if (argIt.hasNext()) {
+                        Path p = Paths.get(argIt.next());
+                        Files.lines(p).forEach(line -> {
+                            Path lp = Paths.get(line);
+                            if (!addAnalyzer(analyzers, lp)) {
+                                throw new IllegalArgumentException(lp.toString() +
+                                    " not a directory and not a JAR/RAR/WAR file");
+                            }
+                        });
+                    } else {
+                        help();
+                    }
+                    continue;
+                case "-v":
+                    verbose = true;
+                    continue;
                 default:
-            }
-
-            Path p = Paths.get(arg);
-            if (!addAnalyzer(analyzers, p)) {
-                if (arg.equals("list.txt")) {
-                    Files.lines(p).forEach(line -> {
-                        Path lp = Paths.get(line);
-                        if (!addAnalyzer(analyzers, lp)) {
-                            throw new IllegalArgumentException(lp.toString() +
-                                " not a directory and not a JAR file");
-                        }
-                    });
-                } else {
-                    throw new IllegalArgumentException(p.toString() +
-                        " not a directory and not a JAR file");
-                }
+                    Path p = Paths.get(arg);
+                    if (!addAnalyzer(analyzers, p)) {
+                        throw new IllegalArgumentException(p.toString() +
+                            " not a directory and not a JAR/RAR/WAR file");
+                    }
             }
         }
 
@@ -107,16 +113,21 @@ public class ListPackages {
                     });
         }
 
-        System.out.println("Split packages: ");
-        pkgs.entrySet().stream()
+        List<Map.Entry<String, List<ListPackages>>> splitPkgs = pkgs.entrySet()
+            .stream()
             .filter(e -> e.getValue().size() > 1)
             .sorted(Map.Entry.comparingByKey())
-            .forEach(e -> {
+            .collect(Collectors.toList());
+
+        if (!splitPkgs.isEmpty()) {
+            System.out.println("Split packages: ");
+            splitPkgs.forEach(e -> {
                 System.out.println(e.getKey());
                 e.getValue().stream()
                     .map(ListPackages::location)
                     .forEach(location -> System.out.format("    %s%n", location));
             });
+        }
 
         if (verbose) {
             System.out.println("All packages: ");
@@ -130,7 +141,12 @@ public class ListPackages {
     }
 
     private static void help() {
-        System.out.println("ListPackages <list.txt | jarfile | exploded directory> ...");
+        System.out.println("");
+        System.out.println("usage: ListPackages [-v] [-l <file>] [file.jar | file.rar | file.war | exploded directory] ...");
+        System.out.println("");
+        System.out.println(" -l <file>   file contains a list of file / directory on each line");
+        System.out.println(" -v          lists all packages after the split package report");
+        System.out.println("");
         System.exit(1);
     }
 
@@ -196,6 +212,7 @@ public class ListPackages {
                 .map(dir::relativize)
                 .map(Path::toString)
                 .map(p -> p.replace(File.separator, "."))
+                .map(ListPackages::specialCaseTranslator)
                 .collect(Collectors.toSet());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -211,6 +228,7 @@ public class ListPackages {
                 .map(JarEntry::getName)
                 .filter(n -> n.endsWith(".class") && !n.equals(MODULE_INFO))
                 .map(ListPackages::toPackage)
+                .map(ListPackages::specialCaseTranslator)
                 .collect(Collectors.toSet());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -220,6 +238,13 @@ public class ListPackages {
     private static String toPackage(String name) {
         int i = name.lastIndexOf('/');
         return i != -1 ? name.substring(0, i).replace("/", ".") : "";
+    }
+
+    private static String specialCaseTranslator(String packageName) {
+        if (packageName.startsWith("WEB-INF.classes.")) {
+            return packageName.substring(16);
+        }
+        return packageName;
     }
 
     private static Map<String, ListPackages> packageToModule() {
