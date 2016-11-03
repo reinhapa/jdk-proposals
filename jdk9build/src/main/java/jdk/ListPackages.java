@@ -158,7 +158,7 @@ public class ListPackages {
      */
     private static boolean addAnalyzer(List<ListPackages> analyzers, Path resource) {
         if (!Files.exists(resource)) {
-            throw new IllegalArgumentException(resource.toString());
+            return false;
         }
         try {
             if (Files.isDirectory(resource)) {
