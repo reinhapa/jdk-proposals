@@ -52,8 +52,7 @@ import java.util.stream.Collectors;
 public class ListPackages {
     public static void main(String... args) throws IOException {
         if (args.length == 0) {
-            System.out.println("ListPackages <list.txt | jarfile | exploded directory> ...");
-            System.exit(1);
+            help();
         }
 
         boolean verbose = false;
@@ -63,6 +62,10 @@ public class ListPackages {
             switch (arg) {
                 case "-v":
                     verbose = true;
+                    continue;
+                case "-h":
+                case "--help":
+                    help();
                     continue;
                 default:
             }
@@ -119,6 +122,11 @@ public class ListPackages {
                     .forEach(p -> System.out.format("   %s%n", p));
             }
         }
+    }
+
+    private static void help() {
+        System.out.println("ListPackages <list.txt | jarfile | exploded directory> ...");
+        System.exit(1);
     }
 
     private static final String MODULE_INFO = "module-info.class";
