@@ -62,6 +62,7 @@ public class ListPackages {
 
         boolean verbose = false;
         List<ListPackages> analyzers = new ArrayList<>();
+        String packageArg = "";
 
         for (Iterator<String> argIt = Arrays.asList(args).iterator(); argIt.hasNext(); ) {
             String arg  = argIt.next();
@@ -93,6 +94,12 @@ public class ListPackages {
                 case "-v":
                     verbose = true;
                     continue;
+                case "-p":
+                    if (argIt.hasNext()) {
+                        packageArg = argIt.next();
+                        continue;
+                    }
+                    help();
                 default:
                     if (arg.startsWith("-")) {
                         help();
@@ -116,14 +123,17 @@ public class ListPackages {
                     });
         }
 
+        final String packageStart = packageArg;
+
         List<Map.Entry<String, List<ListPackages>>> splitPkgs = pkgs.entrySet()
             .stream()
             .filter(e -> e.getValue().size() > 1)
+            .filter(e -> e.getKey().startsWith(packageStart))
             .sorted(Map.Entry.comparingByKey())
             .collect(Collectors.toList());
 
         if (!splitPkgs.isEmpty()) {
-            System.out.println("Split packages: ");
+            System.out.println("- Split packages:");
             splitPkgs.forEach(e -> {
                 System.out.println(e.getKey());
                 e.getValue().stream()
@@ -133,22 +143,28 @@ public class ListPackages {
         }
 
         if (verbose) {
-            System.out.println("All packages: ");
+            System.out.println("- All packages:");
             for (ListPackages analyzer : analyzers) {
-                System.out.println(analyzer.location());
-                analyzer.packages.stream()
+                List<String> allPkgs = analyzer.packages
+                    .stream()
+                    .filter(e -> e.startsWith(packageStart))
                     .sorted()
-                    .forEach(p -> System.out.format("   %s%n", p));
+                    .collect(Collectors.toList());
+                if (!allPkgs.isEmpty()) {
+                    System.out.println(analyzer.location());
+                    allPkgs.forEach(p -> System.out.format("   %s%n", p));
+                }
             }
         }
     }
 
     private static void help() {
         System.out.println("");
-        System.out.println("usage: ListPackages [-v] [-f <file>] [-d <directory>] [file.jar | file.rar | file.war | exploded directory] ...");
+        System.out.println("usage: ListPackages [-v] [-f <file>] [-d <directory>] [-p <package>] [file.jar | file.rar | file.war | exploded directory] ...");
         System.out.println("");
         System.out.println(" -f <file>        file contains a list of file / exploded directory on each line");
-        System.out.println(" -d <directory>   directory containing file / exploded directories");
+        System.out.println(" -d <directory>   directory containing jar files / exploded directories");
+        System.out.println(" -p <package>     parent package, such as java.util; will only list java.util and java.util.* packages");
         System.out.println(" -v               lists all packages after the split package report");
         System.out.println("");
         System.exit(1);
