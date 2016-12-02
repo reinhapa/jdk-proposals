@@ -1,2 +1,3 @@
 include 'Jdk9ModuleTest'
+include 'MicroBenchmarks'
 include 'WebSocketTestClient'
