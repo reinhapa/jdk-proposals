@@ -1,7 +1,11 @@
 package net.reini;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Main {
 	public static void main(String[] args) {
-		System.out.println(new SomeClass().toString());
+		Logger logger = LoggerFactory.getLogger(Main.class);
+		logger.info(new SomeClass().toString());
 	}
 }

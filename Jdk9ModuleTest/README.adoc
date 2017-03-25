@@ -1,0 +1,7 @@
+= JDK 9 Test content using new modules
+
+== Manual compile and run
+
+javac -d build/classes -p ~/.m2/repository/org/slf4j/slf4j-api/1.8.0-SNAPSHOT/slf4j-api-1.8.0-SNAPSHOT.jar $(find src/main/java -name "*.java")
+
+java -p ~/.m2/repository/org/slf4j/slf4j-api/1.8.0-SNAPSHOT/slf4j-api-1.8.0-SNAPSHOT.jar:build/classes -m testmodule/net.reini.Main
