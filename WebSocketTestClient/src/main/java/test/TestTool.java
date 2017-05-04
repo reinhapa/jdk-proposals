@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * Created by pr on 02.05.2017.
  */
-public class DummyTool implements Tool {
+public class TestTool implements Tool {
     @Override
     public int run(InputStream in, OutputStream out, OutputStream err, String... arguments) {
         return 0;

@@ -1,1 +1,1 @@
-test.DummyTool
+test.TestTool
