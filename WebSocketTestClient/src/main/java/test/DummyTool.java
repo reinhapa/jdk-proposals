@@ -21,8 +21,7 @@ public class DummyTool implements Tool {
         return Collections.singleton(SourceVersion.RELEASE_8);
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
+    private String somePrivateMethod() {
+        return "you got my secret!";
     }
 }

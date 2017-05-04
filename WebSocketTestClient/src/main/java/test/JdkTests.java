@@ -15,16 +15,29 @@ public class JdkTests {
         System.out.println("Java version: " + System.getProperty("java.version"));
         useJdkService();
         useReflectionToPublicMethod();
-        useReflectionToNonPublicMethod();
+        useReflectionToNonPublicMethodFromClassPath();
+        useReflectionToNonPublicMethodFromModule();
     }
 
-    static void useReflectionToNonPublicMethod() {
-        System.out.println("Calling protected method using reflection:");
+    static void useReflectionToNonPublicMethodFromClassPath() {
+        System.out.println("Calling protected method using reflection from classpath:");
+        try {
+            Method method = DummyTool.class.getDeclaredMethod("somePrivateMethod");
+            System.out.println(" - got method " + method);
+            method.setAccessible(true);
+            System.out.println(" - DummyTool.somePrivateMethod(): " + method.invoke(new DummyTool()));
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    static void useReflectionToNonPublicMethodFromModule() {
+        System.out.println("Calling protected method using reflection from module:");
         try {
             Method method = ClassLoader.class.getDeclaredMethod("getPackages");
             System.out.println(" - got method " + method);
             method.setAccessible(true);
-            System.out.println(" - ClassLoader.getPackages('): " + method.invoke(JdkTests.class.getClassLoader()));
+            System.out.println(" - ClassLoader.getPackages(): " + method.invoke(JdkTests.class.getClassLoader()));
         } catch (Throwable t) {
             t.printStackTrace();
         }
