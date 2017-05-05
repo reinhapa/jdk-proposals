@@ -19,6 +19,12 @@ public class JdkTests {
         useJdkService();
 
         System.out.println();
+        System.out.println("Internal API classes");
+        System.out.println("---------------------");
+        useInteralApi();
+        useDeletedInteralApi();
+
+        System.out.println();
         System.out.println("Reflection");
         System.out.println("----------");
         useReflectionToPublicMethod();
@@ -26,6 +32,24 @@ public class JdkTests {
         useReflectionToNonPublicMethodFromModule();
         useReflectionToPrivateClassWithinPackagePrivateClass();
         useReflectionToNonPublicClassesFromAModule();
+    }
+
+    static void useDeletedInteralApi() {
+        System.out.println("Use of sun.misc.BASE64Encoder");
+        try {
+            System.out.println(" - got BASE64 encoded string: " + Base64EncoderAccessor.encodeBase64("gugus".getBytes()));
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    static void useInteralApi() {
+        System.out.println("Use of interal com.sun.net.ssl.KeyManagerFactory");
+        try {
+            System.out.println(" - got key factory: " + KeyManagerFactoryAccessor.accessKeyManagerFactory());
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
     }
 
     static void useReflectionToNonPublicClassesFromAModule() {
