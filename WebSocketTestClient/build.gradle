@@ -5,8 +5,8 @@ dependencies {
     compile "org.eclipse.jetty.websocket:javax-websocket-client-impl:9.+"
 }
 
-mainClassName = "test.JdkTests"
+mainClassName = "ws.TestClient"
 
 jar.manifest {
-    attributes 'Main-Class': 'test.JdkTests'
+    attributes 'Main-Class': 'ws.TestClient'
 }
