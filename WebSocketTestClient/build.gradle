@@ -9,7 +9,7 @@ dependencies {
     compile "eu.hansolo:Medusa:+"
 }
 
-mainClassName = "ws.TestClient"
+mainClassName = "ws.JavaFXDemo"
 
 jar.manifest {
     attributes 'Main-Class': 'ws.JavaFXDemo'

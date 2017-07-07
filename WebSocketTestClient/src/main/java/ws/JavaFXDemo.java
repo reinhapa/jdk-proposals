@@ -57,8 +57,7 @@ public class JavaFXDemo extends Application {
 
 		session = container.connectToServer(new EchoClient(message -> {
 			echoResponse.appendText(message.concat("\n"));
-		}),
-				URI.create("ws://echo.websocket.org"));
+		}), URI.create("ws://echo.websocket.org"));
 		textField.setOnAction(value -> {
 			try {
 				session.getBasicRemote().sendText(textField.getText());
