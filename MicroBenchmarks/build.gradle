@@ -1,1 +1,4 @@
-apply plugin: 'me.champeau.gradle.jmh'
+plugins {
+    id 'java'
+    id 'me.champeau.jmh' version '0.7.3'
+}

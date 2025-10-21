@@ -1,15 +1,25 @@
 import org.gradle.plugins.ide.eclipse.model.AccessRule
 
-apply plugin: 'application'
-apply plugin: 'eclipse'
-
-dependencies {
-    compile "javax.websocket:javax.websocket-client-api:+"
-    compile "org.eclipse.jetty.websocket:javax-websocket-client-impl:+"
-    compile "eu.hansolo:Medusa:+"
+plugins {
+    id 'application'
+    id 'eclipse'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
-mainClassName = "ws.JavaFXDemo"
+dependencies {
+    implementation 'javax.websocket:javax.websocket-client-api:1.1'
+    implementation 'org.eclipse.jetty.websocket:javax-websocket-client-impl:9.4.58.v20250814'
+    implementation 'eu.hansolo:Medusa:16.0.0'
+}
+
+javafx {
+    version = '21'
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+application {
+    mainClass = 'ws.JavaFXDemo'
+}
 
 jar.manifest {
     attributes 'Main-Class': 'ws.JavaFXDemo'
@@ -24,8 +34,4 @@ eclipse {
             }
         }
     }
-}
-
-repositories {
-    jcenter()
 }
