@@ -1,0 +1,11 @@
+plugins {
+    id 'application'
+}
+
+dependencies {
+    implementation 'net.reini:virtual-printer:1.2.0'
+}
+
+application {
+    mainClass = 'Reproducer'
+}
